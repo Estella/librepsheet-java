@@ -38,7 +38,22 @@ import org.repsheet.librepsheet.Actor;
 public void someFunc() {
   Connection connection = Connection.new("localhost", 6379, 5);
   Actor actor = new Actor(Actor.ActorTypes.IP, "1.1.1.1");
-  Actor.ActorStatus status = actor.status();
+  ActorStatus actorStatus = actor.lookup(connection);
+
+  switch(actorStatus.getStatus()) {
+    case WHITELISTED:
+      System.out.println("Whitelisted: " + actorStatus.getReason());
+      break;
+    case BLACKLISTED:
+      System.out.println("Blacklisted: " + actorStatus.getReason());
+      break;
+    case MARKED:
+      System.out.println("Marked: " + actorStatus.getReason());
+      break;
+    default:
+      System.out.println("Actor not found on Repsheet");
+      break;
+  }
 }
 ```
 

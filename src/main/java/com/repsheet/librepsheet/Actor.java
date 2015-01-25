@@ -3,101 +3,120 @@ package com.repsheet.librepsheet;
 import redis.clients.jedis.Jedis;
 
 public class Actor {
-    public enum ActorType { CIDR, IP, USER };
-    public enum ActorStatus { MARKED, WHITELISTED, BLACKLISTED, OK }
+    public enum Type { CIDR, IP, USER };
+    public enum Status { MARKED, WHITELISTED, BLACKLISTED, OK }
 
-    private final ActorType type;
+    private final Type type;
     private final String value;
 
-    public Actor(ActorType type, String value) {
+    public Actor(Type type, String value) {
         this.type = type;
         this.value = value;
     }
 
-    public ActorStatus status(Connection connection) {
-        if (isWhitelisted(connection)) {
-            return ActorStatus.WHITELISTED;
-        } else if (isBlacklisted(connection)) {
-            return ActorStatus.BLACKLISTED;
-        } else if (isMarked(connection)) {
-            return ActorStatus.MARKED;
+    public ActorStatus lookup(Connection connection) {
+        String reason;
+
+        reason = isWhitelisted(connection);
+        if (reason != null) {
+            return new ActorStatus(Status.WHITELISTED, reason);
         }
 
-        return ActorStatus.OK;
+        reason = isBlacklisted(connection);
+        if (reason != null) {
+            return new ActorStatus(Status.BLACKLISTED, reason);
+        }
+
+        reason = isMarked(connection);
+        if (reason != null) {
+            return new ActorStatus(Status.MARKED, reason);
+        }
+
+        return new ActorStatus(Status.OK, null);
     }
 
-    public boolean isWhitelisted(Connection connection) {
+    public String isWhitelisted(Connection connection) {
         switch(this.type) {
             case IP:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    if (jedis.exists(this.value + ":repsheet:ip:whitelist")) {
-                        return true;
+                    String reply = jedis.get(this.value + ":repsheet:ip:whitelist");
+                    if (reply != null) {
+                        return reply;
                     } else {
-                        return false;
+                        return null;
                     }
                 }
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    if (jedis.exists(this.value + ":repsheet:users:whitelist")) {
-                        return true;
+                    String reply = jedis.get(this.value + ":repsheet:users:whitelist");
+                    if (reply != null) {
+                        return reply;
                     } else {
-                        return false;
+                        return null;
                     }
                 }
             case CIDR:
                 throw new UnsupportedOperationException("CIDR support is not yet implemented");
             default:
-                return false;
+                return null;
         }
     }
 
-    public boolean isBlacklisted(Connection connection) {
+    public String isBlacklisted(Connection connection) {
         switch (this.type) {
             case IP:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    if (jedis.exists(this.value + ":repsheet:ip:blacklist")) {
-                        return true;
+                    String reply;
+                    reply = jedis.get(this.value + ":repsheet:ip:blacklist");
+                    if (reply != null) {
+                        return reply;
                     } else {
-                        return false;
+                        return null;
                     }
                 }
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    if (jedis.exists(this.value + ":repsheet:users:blacklist")) {
-                        return true;
+                    String reply;
+                    reply = jedis.get(this.value + ":repsheet:users:blacklist");
+                    if (reply != null) {
+                        return reply;
                     } else {
-                        return false;
+                        return null;
                     }
                 }
             case CIDR:
                 throw new UnsupportedOperationException("CIDR support is not yet implemented");
             default:
-                return false;
+                return null;
         }
     }
 
-    public boolean isMarked(Connection connection) {
+    public String isMarked(Connection connection) {
         switch (this.type) {
             case IP:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    if (jedis.exists(this.value + ":repsheet:ip")) {
-                        return true;
+                    String reply;
+                    reply = jedis.get(this.value + ":repsheet:ip");
+                    if (reply != null) {
+                        return reply;
                     } else {
-                        return false;
+                        return null;
                     }
                 }
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    if (jedis.exists(this.value + ":repsheet:users")) {
-                        return true;
+                    String reply;
+                    reply = jedis.get(this.value + ":repsheet:users");
+                    if (reply != null) {
+                        return reply;
                     } else {
-                        return false;
+                        return null;
                     }
                 }
             case CIDR:
                 throw new UnsupportedOperationException("CIDR support is not yet implemented");
             default:
-                return false;
+                return null;
         }
     }
 }

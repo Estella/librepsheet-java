@@ -1,7 +1,5 @@
 package com.repsheet.librepsheet;
 
-import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
-import com.sun.xml.internal.ws.addressing.WsaTubeHelperImpl;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -19,104 +17,104 @@ public class ActorTest {
     }
 
     @Test
-    public void testIsWhitelistedReturnsTrueWhenIPWhitelisted() {
+    public void testIsWhitelistedReturnsReasonWhenIPWhitelisted() {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1.1.1.1:repsheet:ip:whitelist", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(true, actor.isWhitelisted(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        assertEquals("test", actor.isWhitelisted(connection));
     }
 
     @Test
-    public void testIsWhitelistedReturnsFalseWhenIPNotWhitelisted() {
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(false, actor.isWhitelisted(connection));
+    public void testIsWhitelistedReturnsNullWhenIPNotWhitelisted() {
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        assertEquals(null, actor.isWhitelisted(connection));
     }
 
     @Test
-    public void testIsWhitelistedReturnsTrueWhenUserWhitelisted() {
+    public void testIsWhitelistedReturnsReasonWhenUserWhitelisted() {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("test:repsheet:users:whitelist", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.USER, "test");
-        assertEquals(true, actor.isWhitelisted(connection));
+        Actor actor = new Actor(Actor.Type.USER, "test");
+        assertEquals("test", actor.isWhitelisted(connection));
     }
 
     @Test
-    public void testIsWhitelistedReturnsTrueWhenUserNotWhitelisted() {
-        Actor actor = new Actor(Actor.ActorType.USER, "test");
-        assertEquals(false, actor.isWhitelisted(connection));
+    public void testIsWhitelistedReturnsNullWhenUserNotWhitelisted() {
+        Actor actor = new Actor(Actor.Type.USER, "test");
+        assertEquals(null, actor.isWhitelisted(connection));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testIsWhitelistedThrowsExceptionWhenCalledWithCIDR() {
-        Actor actor = new Actor(Actor.ActorType.CIDR, "1.1.1.0/24");
+        Actor actor = new Actor(Actor.Type.CIDR, "1.1.1.0/24");
         actor.isWhitelisted(connection);
     }
 
     @Test
-    public void testIsBlacklistedReturnsTrueWhenIPBlacklisted() {
+    public void testIsBlacklistedReturnsReasonWhenIPBlacklisted() {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1.1.1.1:repsheet:ip:blacklist", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(true, actor.isBlacklisted(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        assertEquals("test", actor.isBlacklisted(connection));
     }
 
     @Test
-    public void testIsBlacklistedReturnsFalseWhenIPNotBlacklisted() {
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(false, actor.isBlacklisted(connection));
+    public void testIsBlacklistedReturnsNullWhenIPNotBlacklisted() {
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        assertEquals(null, actor.isBlacklisted(connection));
     }
 
     @Test
-    public void testIsBlacklistedReturnsTrueWhenUserBlacklisted() {
+    public void testIsBlacklistedReturnsReasonWhenUserBlacklisted() {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("test:repsheet:users:blacklist", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.USER, "test");
-        assertEquals(true, actor.isBlacklisted(connection));
+        Actor actor = new Actor(Actor.Type.USER, "test");
+        assertEquals("test", actor.isBlacklisted(connection));
     }
 
     @Test
     public void testIsBlacklistedReturnsFalseWhenUserNotBlacklisted() {
-        Actor actor = new Actor(Actor.ActorType.USER, "test");
-        assertEquals(false, actor.isBlacklisted(connection));
+        Actor actor = new Actor(Actor.Type.USER, "test");
+        assertEquals(null, actor.isBlacklisted(connection));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testIsBlacklistedThrowsExceptionWhenCalledWithCIDR() {
-        Actor actor = new Actor(Actor.ActorType.CIDR, "1.1.1.0/24");
+        Actor actor = new Actor(Actor.Type.CIDR, "1.1.1.0/24");
         actor.isBlacklisted(connection);
     }
 
     @Test
-    public void testIsMarkedReturnsTrueWhenIPMarked() {
+    public void testIsMarkedReturnsReasonWhenIPMarked() {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1.1.1.1:repsheet:ip", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(true, actor.isMarked(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        assertEquals("test", actor.isMarked(connection));
     }
 
     @Test
     public void testIsMarkedReturnsFalseWhenIPNotMarked() {
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(false, actor.isMarked(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        assertEquals(null, actor.isMarked(connection));
     }
 
     @Test
-    public void testIsMarkedReturnsTrueWhenUserMarked() {
+    public void testIsMarkedReturnsReasonWhenUserMarked() {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("test:repsheet:users", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.USER, "test");
-        assertEquals(true, actor.isMarked(connection));
+        Actor actor = new Actor(Actor.Type.USER, "test");
+        assertEquals("test", actor.isMarked(connection));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testIsMarkedThrowsExceptionWhenCalledWithCIDR() {
-        Actor actor = new Actor(Actor.ActorType.CIDR, "1.1.1.0/24");
+        Actor actor = new Actor(Actor.Type.CIDR, "1.1.1.0/24");
         actor.isMarked(connection);
     }
 
@@ -127,8 +125,10 @@ public class ActorTest {
             jedis.set("1.1.1.1:repsheet:ip:blacklist", "test");
             jedis.set("1.1.1.1:repsheet:ip", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(Actor.ActorStatus.WHITELISTED, actor.status(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        ActorStatus actorStatus = actor.lookup(connection);
+        assertEquals(Actor.Status.WHITELISTED, actorStatus.getStatus());
+        assertEquals("test", actorStatus.getReason());
     }
 
     @Test
@@ -136,8 +136,10 @@ public class ActorTest {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1.1.1.1:repsheet:ip:blacklist", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(Actor.ActorStatus.BLACKLISTED, actor.status(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        ActorStatus actorStatus = actor.lookup(connection);
+        assertEquals(Actor.Status.BLACKLISTED, actorStatus.getStatus());
+        assertEquals("test", actorStatus.getReason());
     }
 
     @Test
@@ -145,13 +147,16 @@ public class ActorTest {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1.1.1.1:repsheet:ip", "test");
         }
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(Actor.ActorStatus.MARKED, actor.status(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        ActorStatus actorStatus = actor.lookup(connection);
+        assertEquals(Actor.Status.MARKED, actorStatus.getStatus());
+        assertEquals("test", actorStatus.getReason());
     }
 
     @Test
     public void testStatusReturnsOKWhenNothingKnown() {
-        Actor actor = new Actor(Actor.ActorType.IP, "1.1.1.1");
-        assertEquals(Actor.ActorStatus.OK, actor.status(connection));
+        Actor actor = new Actor(Actor.Type.IP, "1.1.1.1");
+        ActorStatus actorStatus = actor.lookup(connection);
+        assertEquals(Actor.Status.OK, actorStatus.getStatus());
     }
 }
