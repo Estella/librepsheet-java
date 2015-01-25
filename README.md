@@ -36,11 +36,10 @@ class and asking its status:
 import org.repsheet.librepsheet.Actor;
 
 public void someFunc() {
-  Connection connection = Connection.new("localhost", 6379, 5);
-  Actor actor = new Actor(Actor.ActorTypes.IP, "1.1.1.1");
-  ActorStatus actorStatus = actor.lookup(connection);
+  Connection connection = Connection.new("localhost", 6379);
+  Actor actor = Actor.lookup(connection, Actor.Types.IP, "1.1.1.1");
 
-  switch(actorStatus.getStatus()) {
+  switch(actor.getStatus()) {
     case WHITELISTED:
       System.out.println("Whitelisted: " + actorStatus.getReason());
       break;
