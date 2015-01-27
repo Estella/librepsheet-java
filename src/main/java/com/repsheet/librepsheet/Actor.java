@@ -1,9 +1,16 @@
 package com.repsheet.librepsheet;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.netty.handler.ipfilter.CIDR;
 import redis.clients.jedis.Jedis;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Set;
+
 public class Actor {
-    public enum Type { IP, USER };
+    public enum Type { IP, USER, CIDR };
     public enum Status { MARKED, WHITELISTED, BLACKLISTED, OK }
 
     private final Type type;
@@ -59,6 +66,23 @@ public class Actor {
                     if (reply != null) {
                         actor.reason = reply;
                     }
+
+                    Set<String> blocks = jedis.keys("*:repsheet:cidr:whitelist");
+                    for (String s : blocks) {
+                        try {
+                            String[] parts = s.split(":");
+                            String block = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - 3), ":");
+                            CIDR cidr = CIDR.newCIDR(block);
+                            InetAddress address = InetAddress.getByName(actor.value);
+                            if (cidr.contains(address)) {
+                                actor.reason = jedis.get(s);
+                                actor.status = Status.WHITELISTED;
+                                return;
+                            }
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
@@ -78,6 +102,23 @@ public class Actor {
                     if (reply != null) {
                         actor.reason = reply;
                     }
+
+                    Set<String> blocks = jedis.keys("*:repsheet:cidr:blacklist");
+                    for (String s : blocks) {
+                        try {
+                            String[] parts = s.split(":");
+                            String block = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - 3), ":");
+                            CIDR cidr = CIDR.newCIDR(block);
+                            InetAddress address = InetAddress.getByName(actor.value);
+                            if (cidr.contains(address)) {
+                                actor.reason = jedis.get(s);
+                                actor.status = Status.BLACKLISTED;
+                                return;
+                            }
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
@@ -96,6 +137,23 @@ public class Actor {
                     String reply = jedis.get(actor.value + ":repsheet:ip");
                     if (reply != null) {
                         actor.reason = reply;
+                    }
+
+                    Set<String> blocks = jedis.keys("*:repsheet:cidr");
+                    for (String s : blocks) {
+                        try {
+                            String[] parts = s.split(":");
+                            String block = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - 2), ":");
+                            CIDR cidr = CIDR.newCIDR(block);
+                            InetAddress address = InetAddress.getByName(actor.value);
+                            if (cidr.contains(address)) {
+                                actor.reason = jedis.get(s);
+                                actor.status = Status.MARKED;
+                                return;
+                            }
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             case USER:

@@ -52,4 +52,31 @@ public class ActorTest {
         Actor actor = Actor.lookup(connection, Actor.Type.IP, "1.1.1.1");
         assertEquals(Actor.Status.OK, actor.getStatus());
     }
+
+    @Test
+    public void testStatusReturnsWhitelistedWhenIPv4InCIDRBlock() {
+        try (Jedis jedis = connection.getPool().getResource()) {
+            jedis.set("10.0.1.0/24:repsheet:cidr:whitelist", "test");
+        }
+        Actor actor = Actor.lookup(connection, Actor.Type.IP, "10.0.1.15");
+        assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
+    }
+
+    @Test
+    public void testStatusReturnsBlacklistedWhenIPv6InCIDRBlock() {
+        try (Jedis jedis = connection.getPool().getResource()) {
+            jedis.set("1fff:0:0a88:85a3:0:0:ac1f:8001/24:repsheet:cidr:blacklist", "test");
+        }
+        Actor actor = Actor.lookup(connection, Actor.Type.IP, "1fff:0:0a88:85a3:0:0:ac1f:8002");
+        assertEquals(Actor.Status.BLACKLISTED, actor.getStatus());
+    }
+
+    @Test
+    public void testStatusReturnsMarkedWhenIPv4InCIDRBlock() {
+        try (Jedis jedis = connection.getPool().getResource()) {
+            jedis.set("10.0.1.0/24:repsheet:cidr", "test");
+        }
+        Actor actor = Actor.lookup(connection, Actor.Type.IP, "10.0.1.15");
+        assertEquals(Actor.Status.MARKED, actor.getStatus());
+    }
 }
