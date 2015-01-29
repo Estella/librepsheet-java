@@ -61,7 +61,7 @@
             </plugin>
         </plugins>
     </reporting>
-    
+
     <dependencies>
         <dependency>
             <groupId>redis.clients</groupId>

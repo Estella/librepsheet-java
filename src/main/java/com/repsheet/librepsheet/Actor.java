@@ -68,6 +68,7 @@ public final class Actor {
                     String reply = jedis.get(actor.value + ":repsheet:ip:" + keyspaceFromStatus(status));
                     if (reply != null) {
                         actor.reason = reply;
+                        return;
                     }
 
                     Set<String> blocks = jedis.keys("*:repsheet:cidr:" + keyspaceFromStatus(status));
@@ -83,17 +84,20 @@ public final class Actor {
                                 return;
                             }
                         } catch (UnknownHostException e) {
-                            e.printStackTrace();
+                            // TODO: figure out what should actually happen here. Probably log, but no logging infrastructure is setup at the moment
                         }
                     }
                 }
+                break;
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
                     String reply = jedis.get(actor.value + ":repsheet:users:" + keyspaceFromStatus(status));
                     if (reply != null) {
                         actor.reason = reply;
+                        return;
                     }
                 }
+                break;
             default:
                 break;
         }
