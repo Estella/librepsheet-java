@@ -11,6 +11,8 @@ Put Maven stuff here when it is complete.
 
 ## Usage
 
+#### Connections
+
 librepsheet provides a `Connection` class. This is simply a wrapper over the [Jedis](https://github.com/xetorthio/jedis)
 connection pool. This is used because the standard Jedis connection isn't thread safe. Using the provided `Connection`
 class will dael with this for you so you don't have to think about how the cache is working underneath. To get a
@@ -28,6 +30,8 @@ public void someFunc() {
 
 The three arguments to the constructor are the Redis host, port, and connection timeout in milliseconds. This will
 create the connection pool for you to pass along to the `Actor` class when querying the cache.
+
+#### Actors
 
 Once you have a connection, you can ask the status of an actor. You do this by creating an instance of the `Actor`
 class and asking its status:
@@ -61,3 +65,14 @@ actor in the cache. There are four actor statuses. They are `WHITELISTED`, `BLAC
 White and black list should be straight forward. `MARKED` is used to identify actors who are suspected of malicious
 activity but haven't been blacklisted yet. `OK` means that Repsheet knows nothing about this IP and it should be
 considered fine for further requests.
+
+#### X-Forwarded-For
+
+If you are integrating this directly into a web handler, chances are you will need to parse the `X-Forwraded-For`
+header to get the real source IP address. You can use `XFF.getSourceAddress` and pass it the header value.
+
+```java
+String address = XFF.getSourceAddress("1.1.1.1, 2.2.2.2, 3.3.3.3")
+```
+
+This will return either an IP address or null if the header is not valid. This method also works with IPv6 addresses.
