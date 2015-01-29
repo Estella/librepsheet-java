@@ -1,4 +1,4 @@
-# librepsheet [![Build Status](https://secure.travis-ci.org/repsheet/librepsheet-java.png)](http://travis-ci.org/repsheet/librepsheet-java?branch=master)
+# librepsheet [![Build Status](https://secure.travis-ci.org/repsheet/librepsheet-java.png)](http://travis-ci.org/repsheet/librepsheet-java?branch=master) [![Coverity Status](https://scan.coverity.com/projects/4082/badge.svg?flat=1)](https://scan.coverity.com/projects/4082)
 
 This is the core logic library for Repsheet. It provides the abstraction on top of the Redis cache used by Repsheet.
 The idea is that this library will supply everything needed to implement Repsheet in any program. This is the Java
