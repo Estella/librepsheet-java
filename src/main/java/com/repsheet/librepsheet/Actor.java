@@ -9,19 +9,22 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Set;
 
-public class Actor {
+
+public final class Actor {
     public enum Type { IP, USER }
     public enum Status { MARKED, WHITELISTED, BLACKLISTED, OK }
 
+    private static final int KEYSPACELENGTH = 3;
     private final Type type;
     private final String value;
     private Status status = Status.OK;
     private String reason = null;
 
-    private Actor(Type type, String value) {
+    private Actor(final Type type, final String value) {
         this.type = type;
         this.value = value;
     }
+
 
     public Status getStatus() {
         return status;
@@ -31,7 +34,7 @@ public class Actor {
         return reason;
     }
 
-    public static Actor lookup(Connection connection, Type type, String value) {
+    public static Actor lookup(final Connection connection, final Type type, final String value) {
         Actor actor = new Actor(type, value);
 
         query(connection, actor, Status.WHITELISTED);
@@ -58,7 +61,7 @@ public class Actor {
         return actor;
     }
 
-    private static void query(Connection connection, Actor actor, Status status) {
+    private static void query(final Connection connection, final Actor actor, final Status status) {
         switch (actor.type) {
             case IP:
                 try (Jedis jedis = connection.getPool().getResource()) {
@@ -71,7 +74,7 @@ public class Actor {
                     for (String s : blocks) {
                         try {
                             String[] parts = s.split(":");
-                            String block = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - 3), ":");
+                            String block = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - KEYSPACELENGTH), ":");
                             CIDR cidr = CIDR.newCIDR(block);
                             InetAddress address = InetAddress.getByName(actor.value);
                             if (cidr.contains(address)) {
@@ -91,10 +94,12 @@ public class Actor {
                         actor.reason = reply;
                     }
                 }
+            default:
+                break;
         }
     }
 
-    private static String keyspaceFromStatus(Status status) {
+    private static String keyspaceFromStatus(final Status status) {
         switch (status) {
             case WHITELISTED:
                 return "whitelisted";
