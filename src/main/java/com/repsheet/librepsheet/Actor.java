@@ -11,20 +11,29 @@ import java.util.Set;
 
 
 public final class Actor {
-    public enum Type { IP, USER }
+    public enum Type { IP, USER, USERAGENT }
     public enum Status { MARKED, WHITELISTED, BLACKLISTED, OK }
 
     private static final int KEYSPACELENGTH = 3;
     private final Type type;
     private final String value;
-    private Status status = Status.OK;
-    private String reason = null;
+    private final Status status;
+    private final String reason;
 
-    private Actor(final Type type, final String value) {
+    public Actor(final Type type, final String value, final Status status, final String reason) {
         this.type = type;
         this.value = value;
+        this.status = status;
+        this.reason = reason;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public String getValue() {
+        return value;
+    }
 
     public Status getStatus() {
         return status;
@@ -34,41 +43,13 @@ public final class Actor {
         return reason;
     }
 
-    public static Actor lookup(final Connection connection, final Type type, final String value) {
-        Actor actor = new Actor(type, value);
-
-        query(connection, actor, Status.WHITELISTED);
-        if (actor.reason != null) {
-            actor.status = Status.WHITELISTED;
-            return actor;
-        }
-
-        query(connection, actor, Status.BLACKLISTED);
-        if (actor.reason != null) {
-            actor.status = Status.BLACKLISTED;
-            return actor;
-
-        }
-
-        query(connection, actor, Status.MARKED);
-        if (actor.reason != null) {
-            actor.status = Status.MARKED;
-            return actor;
-        }
-
-        actor.status = Status.OK;
-
-        return actor;
-    }
-
-    private static void query(final Connection connection, final Actor actor, final Status status) {
-        switch (actor.type) {
+    public static Actor query(final Connection connection, final Type type, final String value, final Status status) {
+        switch (type) {
             case IP:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    String reply = jedis.get(actor.value + ":repsheet:ip:" + keyspaceFromStatus(status));
+                    String reply = jedis.get(value + ":repsheet:ip:" + keyspaceFromStatus(status));
                     if (reply != null) {
-                        actor.reason = reply;
-                        return;
+                        return new Actor(type, value, status, reply);
                     }
 
                     Set<String> blocks = jedis.keys("*:repsheet:cidr:" + keyspaceFromStatus(status));
@@ -77,11 +58,9 @@ public final class Actor {
                             String[] parts = s.split(":");
                             String block = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - KEYSPACELENGTH), ":");
                             CIDR cidr = CIDR.newCIDR(block);
-                            InetAddress address = InetAddress.getByName(actor.value);
+                            InetAddress address = InetAddress.getByName(value);
                             if (cidr.contains(address)) {
-                                actor.reason = jedis.get(s);
-                                actor.status = status;
-                                return;
+                                return new Actor(type, value, status, jedis.get(s));
                             }
                         } catch (UnknownHostException e) {
                             // TODO: figure out what should actually happen here. Probably log, but no logging infrastructure is setup at the moment
@@ -91,16 +70,24 @@ public final class Actor {
                 break;
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    String reply = jedis.get(actor.value + ":repsheet:users:" + keyspaceFromStatus(status));
+                    String reply = jedis.get(value + ":repsheet:users:" + keyspaceFromStatus(status));
                     if (reply != null) {
-                        actor.reason = reply;
-                        return;
+                        return new Actor(type, value, status, reply);
                     }
                 }
                 break;
+            case USERAGENT:
+                try (Jedis jedis = connection.getPool().getResource()) {
+                    String reply = jedis.get(value + ":repsheet:useragents:" + keyspaceFromStatus(status));
+                    if (reply != null) {
+                        return new Actor(type, value, status, reply);
+                    }
+                }
             default:
                 break;
         }
+
+        return new Actor(type, value, Status.OK, null);
     }
 
     private static String keyspaceFromStatus(final Status status) {

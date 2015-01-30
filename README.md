@@ -41,7 +41,7 @@ import org.repsheet.librepsheet.Actor;
 
 public void someFunc() {
   Connection connection = Connection.new("localhost", 6379);
-  Actor actor = Actor.lookup(connection, Actor.Types.IP, "1.1.1.1");
+  Actor actor = connection.lookup(connection, Actor.Types.IP, "1.1.1.1");
 
   switch(actor.getStatus()) {
     case WHITELISTED:
