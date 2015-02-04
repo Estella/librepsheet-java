@@ -90,6 +90,17 @@ public class ConnectionTest {
     }
 
     @Test
+    public void testMultipleCIDRBlocksThatOverlap() {
+        try (Jedis jedis = connection.getPool().getResource()) {
+            jedis.set("10.0.1.0/24:repsheet:cidr:whitelisted", "test");
+            jedis.set("10.0.0.0/8:repsheet:cidr:whitelisted", "test");
+            jedis.set("10.0.1.15/32:repsheet:cidr:whitelisted", "test");
+        }
+        Actor actor = connection.lookup(connection, Actor.Type.IP, "10.0.1.15");
+        assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
+    }
+
+    @Test
     public void testUserAgentReturnsBlacklistedWhenBlacklisted() {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("curl/7.35.0:repsheet:useragents:blacklisted", "test");

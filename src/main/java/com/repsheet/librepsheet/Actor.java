@@ -7,14 +7,16 @@ import redis.clients.jedis.Jedis;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 
 
 public final class Actor {
     public enum Type { IP, USER, USERAGENT }
     public enum Status { MARKED, WHITELISTED, BLACKLISTED, OK }
 
-    private static final int KEYSPACELENGTH = 3;
+
     private final Type type;
     private final String value;
     private final Status status;
@@ -44,33 +46,29 @@ public final class Actor {
     }
 
     public static Actor query(final Connection connection, final Type type, final String value, final Status status) {
+        String keyspace = keyspaceFromStatus(status);
+
         switch (type) {
             case IP:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    String reply = jedis.get(value + ":repsheet:ip:" + keyspaceFromStatus(status));
+                    String reply = jedis.get(value + ":repsheet:ip:" + keyspace);
                     if (reply != null) {
                         return new Actor(type, value, status, reply);
                     }
 
-                    Set<String> blocks = jedis.keys("*:repsheet:cidr:" + keyspaceFromStatus(status));
-                    for (String s : blocks) {
-                        try {
-                            String[] parts = s.split(":");
-                            String block = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - KEYSPACELENGTH), ":");
-                            CIDR cidr = CIDR.newCIDR(block);
-                            InetAddress address = InetAddress.getByName(value);
-                            if (cidr.contains(address)) {
-                                return new Actor(type, value, status, jedis.get(s));
-                            }
-                        } catch (UnknownHostException e) {
-                            // TODO: figure out what should actually happen here. Probably log, but no logging infrastructure is setup at the moment
-                        }
+                    Set<String> blocks = jedis.keys("*:repsheet:cidr:" + keyspace);
+                    BulkCIDRProcessor processor = new BulkCIDRProcessor(blocks, value);
+                    ForkJoinPool pool = new ForkJoinPool();
+                    pool.execute(processor);
+                    List<String> results = processor.join();
+                    if (!results.isEmpty()) {
+                        return new Actor(type, value, status, jedis.get(results.get(0) + ":repsheet:cidr:" + keyspace));
                     }
                 }
                 break;
             case USER:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    String reply = jedis.get(value + ":repsheet:users:" + keyspaceFromStatus(status));
+                    String reply = jedis.get(value + ":repsheet:users:" + keyspace);
                     if (reply != null) {
                         return new Actor(type, value, status, reply);
                     }
@@ -78,7 +76,7 @@ public final class Actor {
                 break;
             case USERAGENT:
                 try (Jedis jedis = connection.getPool().getResource()) {
-                    String reply = jedis.get(value + ":repsheet:useragents:" + keyspaceFromStatus(status));
+                    String reply = jedis.get(value + ":repsheet:useragents:" + keyspace);
                     if (reply != null) {
                         return new Actor(type, value, status, reply);
                     }
