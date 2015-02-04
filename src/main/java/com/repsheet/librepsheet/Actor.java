@@ -56,6 +56,7 @@ public final class Actor {
                     ForkJoinPool pool = new ForkJoinPool();
                     pool.execute(processor);
                     List<String> results = processor.join();
+                    pool.shutdown();
                     if (!results.isEmpty()) {
                         return new Actor(type, value, status, jedis.get(results.get(0) + ":repsheet:cidr:" + keyspace));
                     }
