@@ -11,4 +11,5 @@
     <suppress files=".*.java" checks="JavadocMethod"/>
     <suppress files=".*.java" checks="JavadocVariable"/>
     <suppress files=".*.java" checks="JavadocPackage"/>
+    <suppress files=".*.java" checks="EmptyBlock"/>
 </suppressions>

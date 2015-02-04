@@ -16,22 +16,22 @@ public class BulkCIDRProcessor extends RecursiveTask<List<String>> {
     private Set<String> blocks;
     private String block;
     private final String actor;
-    
-    public BulkCIDRProcessor(Set<String> blocks, String actor) {
+
+    public BulkCIDRProcessor(final Set<String> blocks, final String actor) {
         this.blocks = blocks;
         this.actor = actor;
     }
-    
-    public BulkCIDRProcessor(String block, String actor) {
+
+    public BulkCIDRProcessor(final String block, final String actor) {
         this.block = block;
         this.actor = actor;
     }
-    
+
     @Override
-    protected List<String> compute() {
+    protected final List<String> compute() {
         List<String> results = new ArrayList<>();
         List<BulkCIDRProcessor> tasks = new ArrayList<>();
-        
+
         if (blocks != null) {
             for (String b : blocks) {
                 BulkCIDRProcessor task = new BulkCIDRProcessor(b, actor);
@@ -52,8 +52,8 @@ public class BulkCIDRProcessor extends RecursiveTask<List<String>> {
         computeTasks(results, tasks);
         return results;
     }
-    
-    protected void computeTasks(List<String> results, List<BulkCIDRProcessor> tasks) {
+
+    protected final void computeTasks(final List<String> results, final List<BulkCIDRProcessor> tasks) {
         for (BulkCIDRProcessor result : tasks) {
             results.addAll(result.join());
         }

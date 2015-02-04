@@ -16,7 +16,7 @@ public class Connection {
         return this.pool;
     }
 
-    public Actor lookup(final Connection connection, final Actor.Type type, final String value) {
+    public final Actor lookup(final Connection connection, final Actor.Type type, final String value) {
         Actor actor;
 
         actor = Actor.query(connection, type, value, Actor.Status.WHITELISTED);

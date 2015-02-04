@@ -1,12 +1,7 @@
 package com.repsheet.librepsheet;
 
-import org.apache.commons.lang3.StringUtils;
-import org.jboss.netty.handler.ipfilter.CIDR;
 import redis.clients.jedis.Jedis;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
