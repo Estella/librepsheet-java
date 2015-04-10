@@ -12,7 +12,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupWhitelistIP() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.1");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
         actor.getStatus();
     }
 
@@ -20,7 +20,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupWhitelistCIDR() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "2.2.2.15");
+        Actor actor = connection.lookup(Actor.Type.IP, "2.2.2.15");
         actor.getStatus();
     }
 
@@ -28,7 +28,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupBlacklistIP() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.2");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.2");
         actor.getStatus();
     }
 
@@ -36,7 +36,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupBlacklistCIDR() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "2.2.3.15");
+        Actor actor = connection.lookup(Actor.Type.IP, "2.2.3.15");
         actor.getStatus();
     }
 
@@ -44,7 +44,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupMarkedIP() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.3");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.3");
         actor.getStatus();
     }
 
@@ -52,7 +52,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupMarkedCIDR() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "2.2.4.15");
+        Actor actor = connection.lookup(Actor.Type.IP, "2.2.4.15");
         actor.getStatus();
     }
 
@@ -60,7 +60,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupOKIP() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.254");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.254");
         actor.getStatus();
     }
 
@@ -68,7 +68,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupWhitelistUser() {
-        Actor actor = connection.lookup(connection, Actor.Type.USER, "whitelist-benchmark");
+        Actor actor = connection.lookup(Actor.Type.USER, "whitelist-benchmark");
         actor.getStatus();
     }
 
@@ -76,7 +76,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupBlacklistUser() {
-        Actor actor = connection.lookup(connection, Actor.Type.USER, "blacklist-benchmark");
+        Actor actor = connection.lookup(Actor.Type.USER, "blacklist-benchmark");
         actor.getStatus();
     }
 
@@ -84,31 +84,7 @@ public class Benchmarks {
     @BenchmarkMode({Mode.AverageTime})
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void measureLookupMarkedUser() {
-        Actor actor = connection.lookup(connection, Actor.Type.USER, "marked-benchmark");
-        actor.getStatus();
-    }
-
-    @Benchmark
-    @BenchmarkMode({Mode.AverageTime})
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
-    public void measureLookupWhitelistedUserAgent() {
-        Actor actor = connection.lookup(connection, Actor.Type.USERAGENT, "curl/7.35.0-w");
-        actor.getStatus();
-    }
-
-    @Benchmark
-    @BenchmarkMode({Mode.AverageTime})
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
-    public void measureLookupBlacklistedUserAgent() {
-        Actor actor = connection.lookup(connection, Actor.Type.USERAGENT, "curl/7.35.0-b");
-        actor.getStatus();
-    }
-
-    @Benchmark
-    @BenchmarkMode({Mode.AverageTime})
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
-    public void measureLookupMarkedUserAgent() {
-        Actor actor = connection.lookup(connection, Actor.Type.USERAGENT, "curl/7.35.0-m");
+        Actor actor = connection.lookup(Actor.Type.USER, "marked-benchmark");
         actor.getStatus();
     }
 }

@@ -1,6 +1,7 @@
 package com.repsheet.librepsheet;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.List;
 import java.util.Set;
@@ -8,9 +9,8 @@ import java.util.concurrent.ForkJoinPool;
 
 
 public final class Actor {
-    public enum Type { IP, USER, USERAGENT }
+    public enum Type { IP, USER, CIDR }
     public enum Status { MARKED, WHITELISTED, BLACKLISTED, OK }
-
 
     private final Type type;
     private final String value;
@@ -40,12 +40,18 @@ public final class Actor {
         return reason;
     }
 
-    public static Actor query(final Connection connection, final Type type, final String value, final Status status) {
-        String keyspace = keyspaceFromStatus(status);
+    public Long getTTL(Connection connection) {
+        try(Jedis jedis = connection.getPool().getResource()) {
+            return jedis.ttl(value + ":repsheet:" + Util.stringFromType(type) + ":" + Util.keyspaceFromStatus(status));
+        }
+    }
+
+    public static Actor query(final JedisPool connection, final Type type, final String value, final Status status) {
+        String keyspace = Util.keyspaceFromStatus(status);
 
         switch (type) {
             case IP:
-                try (Jedis jedis = connection.getPool().getResource()) {
+                try (Jedis jedis = connection.getResource()) {
                     String reply = jedis.get(value + ":repsheet:ip:" + keyspace);
                     if (reply != null) {
                         return new Actor(type, value, status, reply);
@@ -63,37 +69,17 @@ public final class Actor {
                 }
                 break;
             case USER:
-                try (Jedis jedis = connection.getPool().getResource()) {
+                try (Jedis jedis = connection.getResource()) {
                     String reply = jedis.get(value + ":repsheet:users:" + keyspace);
                     if (reply != null) {
                         return new Actor(type, value, status, reply);
                     }
                 }
                 break;
-            case USERAGENT:
-                try (Jedis jedis = connection.getPool().getResource()) {
-                    String reply = jedis.get(value + ":repsheet:useragents:" + keyspace);
-                    if (reply != null) {
-                        return new Actor(type, value, status, reply);
-                    }
-                }
             default:
                 break;
         }
 
         return new Actor(type, value, Status.OK, null);
-    }
-
-    private static String keyspaceFromStatus(final Status status) {
-        switch (status) {
-            case WHITELISTED:
-                return "whitelisted";
-            case BLACKLISTED:
-                return "blacklisted";
-            case MARKED:
-                return "marked";
-            default:
-                return null;
-        }
     }
 }

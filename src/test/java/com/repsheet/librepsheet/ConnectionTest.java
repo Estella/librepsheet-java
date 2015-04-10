@@ -3,7 +3,10 @@ package com.repsheet.librepsheet;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class ConnectionTest {
     private Connection connection;
@@ -31,7 +34,7 @@ public class ConnectionTest {
             jedis.set("1.1.1.1:repsheet:ip:whitelisted", "test");
             jedis.set("1.1.1.1:repsheet:ip:blacklisted", "test");
         }
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.1");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
         assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
         assertEquals("test", actor.getReason());
     }
@@ -41,7 +44,7 @@ public class ConnectionTest {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1.1.1.1:repsheet:ip:blacklisted", "test");
         }
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.1");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
         assertEquals(Actor.Status.BLACKLISTED, actor.getStatus());
         assertEquals("test", actor.getReason());
     }
@@ -51,14 +54,14 @@ public class ConnectionTest {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1.1.1.1:repsheet:ip:marked", "test");
         }
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.1");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
         assertEquals(Actor.Status.MARKED, actor.getStatus());
         assertEquals("test", actor.getReason());
     }
 
     @Test
     public void testStatusReturnsOKWhenNothingKnown() {
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1.1.1.1");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
         assertEquals(Actor.Status.OK, actor.getStatus());
     }
 
@@ -67,7 +70,7 @@ public class ConnectionTest {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("10.0.1.0/24:repsheet:cidr:whitelisted", "test");
         }
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "10.0.1.15");
+        Actor actor = connection.lookup(Actor.Type.IP, "10.0.1.15");
         assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
     }
 
@@ -76,7 +79,7 @@ public class ConnectionTest {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("1fff:0:0a88:85a3:0:0:ac1f:8001/24:repsheet:cidr:blacklisted", "test");
         }
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "1fff:0:0a88:85a3:0:0:ac1f:8002");
+        Actor actor = connection.lookup(Actor.Type.IP, "1fff:0:0a88:85a3:0:0:ac1f:8002");
         assertEquals(Actor.Status.BLACKLISTED, actor.getStatus());
     }
 
@@ -85,7 +88,7 @@ public class ConnectionTest {
         try (Jedis jedis = connection.getPool().getResource()) {
             jedis.set("10.0.1.0/24:repsheet:cidr:marked", "test");
         }
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "10.0.1.15");
+        Actor actor = connection.lookup(Actor.Type.IP, "10.0.1.15");
         assertEquals(Actor.Status.MARKED, actor.getStatus());
     }
 
@@ -96,16 +99,97 @@ public class ConnectionTest {
             jedis.set("10.0.0.0/8:repsheet:cidr:whitelisted", "test");
             jedis.set("10.0.1.15/32:repsheet:cidr:whitelisted", "test");
         }
-        Actor actor = connection.lookup(connection, Actor.Type.IP, "10.0.1.15");
+        Actor actor = connection.lookup(Actor.Type.IP, "10.0.1.15");
         assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
     }
 
     @Test
-    public void testUserAgentReturnsBlacklistedWhenBlacklisted() {
-        try (Jedis jedis = connection.getPool().getResource()) {
-            jedis.set("curl/7.35.0:repsheet:useragents:blacklisted", "test");
-        }
-        Actor actor = connection.lookup(connection, Actor.Type.USERAGENT, "curl/7.35.0");
+    public void testBlacklistIPWithoutExpiry() {
+        connection.blacklist("1.1.1.1", Actor.Type.IP, "test");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
         assertEquals(Actor.Status.BLACKLISTED, actor.getStatus());
+    }
+
+    @Test
+    public void testBlacklistUserWithoutExpiry() {
+        connection.blacklist("repsheet", Actor.Type.USER, "test");
+        Actor actor = connection.lookup(Actor.Type.USER, "repsheet");
+        assertEquals(Actor.Status.BLACKLISTED, actor.getStatus());
+    }
+
+    @Test
+    public void testBlacklistIPWithExpiry() {
+        connection.blacklist("1.1.1.1", Actor.Type.IP, "test", 20);
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
+        assertEquals(Actor.Status.BLACKLISTED, actor.getStatus());
+        assertTrue(actor.getTTL(connection) > 15);
+    }
+
+    @Test
+    public void testBlacklistUserWithExpiry() {
+        connection.blacklist("repsheet", Actor.Type.USER, "test", 20);
+        Actor actor = connection.lookup(Actor.Type.USER, "repsheet");
+        assertEquals(Actor.Status.BLACKLISTED, actor.getStatus());
+        assertTrue(actor.getTTL(connection) > 15);
+    }
+
+    @Test
+    public void testWhitelistIPWithoutExpiry() {
+        connection.whitelist("1.1.1.1", Actor.Type.IP, "test");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
+        assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
+    }
+
+    @Test
+    public void testWhitelistUserWithoutExpiry() {
+        connection.whitelist("repsheet", Actor.Type.USER, "test");
+        Actor actor = connection.lookup(Actor.Type.USER, "repsheet");
+        assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
+    }
+
+    @Test
+    public void testWhitelistIPWithExpiry() {
+        connection.whitelist("1.1.1.1", Actor.Type.IP, "test", 20);
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
+        assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
+        assertTrue(actor.getTTL(connection) > 15);
+    }
+
+    @Test
+    public void testWhitelistUserWithExpiry() {
+        connection.whitelist("repsheet", Actor.Type.USER, "test", 20);
+        Actor actor = connection.lookup(Actor.Type.USER, "repsheet");
+        assertEquals(Actor.Status.WHITELISTED, actor.getStatus());
+        assertTrue(actor.getTTL(connection) > 15);
+    }
+
+    @Test
+    public void testMarkIPWithoutExpiry() {
+        connection.mark("1.1.1.1", Actor.Type.IP, "test");
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
+        assertEquals(Actor.Status.MARKED, actor.getStatus());
+    }
+
+    @Test
+    public void testMarkUserWithoutExpiry() {
+        connection.mark("repsheet", Actor.Type.USER, "test");
+        Actor actor = connection.lookup(Actor.Type.USER, "repsheet");
+        assertEquals(Actor.Status.MARKED, actor.getStatus());
+    }
+
+    @Test
+    public void testMarkIPWithExpiry() {
+        connection.mark("1.1.1.1", Actor.Type.IP, "test", 20);
+        Actor actor = connection.lookup(Actor.Type.IP, "1.1.1.1");
+        assertEquals(Actor.Status.MARKED, actor.getStatus());
+        assertTrue(actor.getTTL(connection) > 15);
+    }
+
+    @Test
+    public void testMarkUserWithExpiry() {
+        connection.mark("repsheet", Actor.Type.USER, "test", 20);
+        Actor actor = connection.lookup(Actor.Type.USER, "repsheet");
+        assertEquals(Actor.Status.MARKED, actor.getStatus());
+        assertTrue(actor.getTTL(connection) > 15);
     }
 }
