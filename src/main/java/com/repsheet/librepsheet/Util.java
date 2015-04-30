@@ -1,6 +1,8 @@
 package com.repsheet.librepsheet;
 
-public class Util {
+public final class Util {
+
+    private Util() { }
 
     public static String keyspaceFromStatus(final Actor.Status status) {
         switch (status) {

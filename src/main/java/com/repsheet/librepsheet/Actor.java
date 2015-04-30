@@ -40,8 +40,8 @@ public final class Actor {
         return reason;
     }
 
-    public Long getTTL(Connection connection) {
-        try(Jedis jedis = connection.getPool().getResource()) {
+    public Long getTTL(final Connection connection) {
+        try (Jedis jedis = connection.getPool().getResource()) {
             return jedis.ttl(value + ":repsheet:" + Util.stringFromType(type) + ":" + Util.keyspaceFromStatus(status));
         }
     }

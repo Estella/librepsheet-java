@@ -40,9 +40,9 @@ public class Connection {
         return new Actor(type, value, Actor.Status.OK, null);
     }
 
-    public Status blacklist(String actor, Actor.Type type, String reason) {
+    public final Status blacklist(final String actor, final Actor.Type type, final String reason) {
         String keyspace = Util.stringFromType(type);
-        try(Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
                 return Status.ERROR;
             } else {
@@ -52,9 +52,9 @@ public class Connection {
         }
     }
 
-    public Status blacklist(String actor, Actor.Type type, String reason, int expiry) {
+    public final Status blacklist(final String actor, final Actor.Type type, final String reason, final int expiry) {
         String keyspace = Util.stringFromType(type);
-        try(Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
                 return Status.ERROR;
             } else {
@@ -64,9 +64,9 @@ public class Connection {
         }
     }
 
-    public Status whitelist(String actor, Actor.Type type, String reason) {
+    public final Status whitelist(final String actor, final Actor.Type type, final String reason) {
         String keyspace = Util.stringFromType(type);
-        try(Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
                 return Status.ERROR;
             } else {
@@ -76,9 +76,9 @@ public class Connection {
         }
     }
 
-    public Status whitelist(String actor, Actor.Type type, String reason, int expiry) {
+    public final Status whitelist(final String actor, final Actor.Type type, final String reason, final int expiry) {
         String keyspace = Util.stringFromType(type);
-        try(Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
                 return Status.ERROR;
             } else {
@@ -88,9 +88,9 @@ public class Connection {
         }
     }
 
-    public Status mark(String actor, Actor.Type type, String reason) {
+    public final Status mark(final String actor, final Actor.Type type, final String reason) {
         String keyspace = Util.stringFromType(type);
-        try(Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
                 return Status.ERROR;
             } else {
@@ -100,9 +100,9 @@ public class Connection {
         }
     }
 
-    public Status mark(String actor, Actor.Type type, String reason, int expiry) {
+    public final Status mark(final String actor, final Actor.Type type, final String reason, final int expiry) {
         String keyspace = Util.stringFromType(type);
-        try(Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
                 return Status.ERROR;
             } else {
