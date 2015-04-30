@@ -8,11 +8,19 @@ public class Connection {
     public enum Status { OK, ERROR }
 
     private final String host;
+    private final int port;
     private final JedisPool pool;
 
     public Connection(final String host) {
         this.host = host;
-        this.pool = new JedisPool(new JedisPoolConfig(), this.host);
+        this.port = 6379;
+        this.pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
+    }
+
+    public Connection(final String host, final int port) {
+        this.host = host;
+        this.port = port;
+        this.pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
     }
 
     public final JedisPool getPool() {
