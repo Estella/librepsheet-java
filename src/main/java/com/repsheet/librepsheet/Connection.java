@@ -7,13 +7,15 @@ import redis.clients.jedis.JedisPoolConfig;
 public class Connection {
     public enum Status { OK, ERROR }
 
+    private final int redisDefaultPort = 6379;
+
     private final String host;
     private final int port;
     private final JedisPool pool;
 
     public Connection(final String host) {
         this.host = host;
-        this.port = 6379;
+        this.port = redisDefaultPort;
         this.pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
     }
 
