@@ -12,4 +12,5 @@
     <suppress files=".*.java" checks="JavadocVariable"/>
     <suppress files=".*.java" checks="JavadocPackage"/>
     <suppress files=".*.java" checks="EmptyBlock"/>
+    <suppress files=".*.java" checks="RedundantThrows"/>
 </suppressions>

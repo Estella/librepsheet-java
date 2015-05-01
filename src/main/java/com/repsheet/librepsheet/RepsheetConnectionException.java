@@ -3,15 +3,15 @@ package com.repsheet.librepsheet;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class RepsheetConnectionException extends JedisConnectionException {
-    public RepsheetConnectionException(String message) {
+    public RepsheetConnectionException(final String message) {
         super(message);
     }
 
-    public RepsheetConnectionException(Throwable cause) {
+    public RepsheetConnectionException(final Throwable cause) {
         super(cause);
     }
 
-    public RepsheetConnectionException(String message, Throwable cause) {
+    public RepsheetConnectionException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
