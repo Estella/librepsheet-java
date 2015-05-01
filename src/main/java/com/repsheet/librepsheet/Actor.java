@@ -2,6 +2,7 @@ package com.repsheet.librepsheet;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.List;
 import java.util.Set;
@@ -40,13 +41,16 @@ public final class Actor {
         return reason;
     }
 
-    public Long getTTL(final Connection connection) {
+    public Long getTTL(final Connection connection) throws RepsheetConnectionException {
         try (Jedis jedis = connection.getPool().getResource()) {
             return jedis.ttl(value + ":repsheet:" + Util.stringFromType(type) + ":" + Util.keyspaceFromStatus(status));
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
         }
     }
 
-    public static Actor query(final JedisPool connection, final Type type, final String value, final Status status) {
+    public static Actor query(final JedisPool connection, final Type type, final String value, final Status status)
+    throws RepsheetConnectionException {
         String keyspace = Util.keyspaceFromStatus(status);
 
         switch (type) {
@@ -66,6 +70,8 @@ public final class Actor {
                     if (!results.isEmpty()) {
                         return new Actor(type, value, status, jedis.get(results.get(0) + ":repsheet:cidr:" + keyspace));
                     }
+                } catch (JedisConnectionException e) {
+                    throw new RepsheetConnectionException(e);
                 }
                 break;
             case USER:
@@ -74,6 +80,8 @@ public final class Actor {
                     if (reply != null) {
                         return new Actor(type, value, status, reply);
                     }
+                } catch (JedisConnectionException e) {
+                    throw new RepsheetConnectionException(e);
                 }
                 break;
             default:

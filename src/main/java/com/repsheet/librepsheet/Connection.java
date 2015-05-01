@@ -3,6 +3,7 @@ package com.repsheet.librepsheet;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class Connection {
     public enum Status { OK, ERROR }
@@ -50,7 +51,8 @@ public class Connection {
         return new Actor(type, value, Actor.Status.OK, null);
     }
 
-    public final Status blacklist(final String actor, final Actor.Type type, final String reason) {
+    public final Status blacklist(final String actor, final Actor.Type type, final String reason)
+    throws RepsheetConnectionException {
         String keyspace = Util.stringFromType(type);
         try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
@@ -59,10 +61,13 @@ public class Connection {
                 jedis.set(actor + ":repsheet:" + keyspace + ":blacklisted", reason);
                 return Status.OK;
             }
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
         }
     }
 
-    public final Status blacklist(final String actor, final Actor.Type type, final String reason, final int expiry) {
+    public final Status blacklist(final String actor, final Actor.Type type, final String reason, final int expiry)
+    throws RepsheetConnectionException {
         String keyspace = Util.stringFromType(type);
         try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
@@ -71,10 +76,13 @@ public class Connection {
                 jedis.setex(actor + ":repsheet:" + keyspace + ":blacklisted", expiry, reason);
                 return Status.OK;
             }
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
         }
     }
 
-    public final Status whitelist(final String actor, final Actor.Type type, final String reason) {
+    public final Status whitelist(final String actor, final Actor.Type type, final String reason)
+    throws RepsheetConnectionException {
         String keyspace = Util.stringFromType(type);
         try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
@@ -83,10 +91,13 @@ public class Connection {
                 jedis.set(actor + ":repsheet:" + keyspace + ":whitelisted", reason);
                 return Status.OK;
             }
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
         }
     }
 
-    public final Status whitelist(final String actor, final Actor.Type type, final String reason, final int expiry) {
+    public final Status whitelist(final String actor, final Actor.Type type, final String reason, final int expiry)
+    throws RepsheetConnectionException {
         String keyspace = Util.stringFromType(type);
         try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
@@ -95,10 +106,13 @@ public class Connection {
                 jedis.setex(actor + ":repsheet:" + keyspace + ":whitelisted", expiry, reason);
                 return Status.OK;
             }
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
         }
     }
 
-    public final Status mark(final String actor, final Actor.Type type, final String reason) {
+    public final Status mark(final String actor, final Actor.Type type, final String reason)
+    throws RepsheetConnectionException {
         String keyspace = Util.stringFromType(type);
         try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
@@ -107,10 +121,13 @@ public class Connection {
                 jedis.set(actor + ":repsheet:" + keyspace + ":marked", reason);
                 return Status.OK;
             }
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
         }
     }
 
-    public final Status mark(final String actor, final Actor.Type type, final String reason, final int expiry) {
+    public final Status mark(final String actor, final Actor.Type type, final String reason, final int expiry)
+    throws RepsheetConnectionException {
         String keyspace = Util.stringFromType(type);
         try (Jedis jedis = pool.getResource()) {
             if (keyspace == null) {
@@ -119,6 +136,8 @@ public class Connection {
                 jedis.setex(actor + ":repsheet:" + keyspace + ":marked", expiry, reason);
                 return Status.OK;
             }
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
         }
     }
 }
