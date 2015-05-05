@@ -7,7 +7,13 @@ The common use case is inside of a filter/handler/interceptor/etc. inside of a J
 
 ## Installation
 
-Put Maven stuff here when it is complete.
+```xml
+<dependency>
+    <groupId>com.aaronbedra</groupId>
+    <artifactId>librepsheet</artifactId>
+    <version>0.0.3</version>
+</dependency>
+```
 
 ## Usage
 
