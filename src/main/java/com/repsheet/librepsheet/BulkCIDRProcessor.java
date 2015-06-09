@@ -1,10 +1,8 @@
 package com.repsheet.librepsheet;
 
+import com.aaronbedra.orchard.Orchard;
+import com.aaronbedra.orchard.OrchardAddressException;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.netty.handler.ipfilter.CIDR;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,13 +39,11 @@ public class BulkCIDRProcessor extends RecursiveTask<List<String>> {
         } else {
             try {
                 String[] parts = block.split(":");
-                String computed = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - KEYSPACELENGTH), ":");
-                CIDR cidr = CIDR.newCIDR(computed);
-                InetAddress address = InetAddress.getByName(actor);
-                if (cidr.contains(address)) {
-                    results.add(computed);
+                String cidr = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - KEYSPACELENGTH), ":");
+                if (Orchard.isAddressInCidr(actor, cidr)) {
+                    results.add(cidr);
                 }
-            } catch (UnknownHostException ignored) { }
+            } catch (OrchardAddressException ignored) { }
         }
         computeTasks(results, tasks);
         return results;
