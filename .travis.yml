@@ -3,4 +3,3 @@ services:
   - redis-server
 jdk:
   - oraclejdk8
-  - oraclejdk7

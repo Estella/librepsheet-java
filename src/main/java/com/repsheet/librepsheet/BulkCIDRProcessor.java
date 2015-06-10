@@ -1,7 +1,7 @@
 package com.repsheet.librepsheet;
 
-import com.aaronbedra.orchard.Orchard;
-import com.aaronbedra.orchard.OrchardAddressException;
+import com.aaronbedra.orchard.CIDR;
+import com.aaronbedra.orchard.OrchardException;
 import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,10 +40,10 @@ public class BulkCIDRProcessor extends RecursiveTask<List<String>> {
             try {
                 String[] parts = block.split(":");
                 String cidr = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - KEYSPACELENGTH), ":");
-                if (Orchard.isAddressInCidr(actor, cidr)) {
+                if (CIDR.valueOf(cidr).contains(actor)) {
                     results.add(cidr);
                 }
-            } catch (OrchardAddressException ignored) { }
+            } catch (OrchardException ignored) { }
         }
         computeTasks(results, tasks);
         return results;
