@@ -3,30 +3,32 @@ package com.repsheet.librepsheet;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.util.Pool;
+
+import java.util.Set;
 
 public class Connection {
     public enum Status { OK, ERROR }
 
     private final int redisDefaultPort = 6379;
 
-    private final String host;
-    private final int port;
-    private final JedisPool pool;
+    private final Pool<Jedis> pool;
 
     public Connection(final String host) {
-        this.host = host;
-        this.port = redisDefaultPort;
-        this.pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
+        this.pool = new JedisPool(new JedisPoolConfig(), host, redisDefaultPort);
     }
 
     public Connection(final String host, final int port) {
-        this.host = host;
-        this.port = port;
-        this.pool = new JedisPool(new JedisPoolConfig(), this.host, this.port);
+        this.pool = new JedisPool(new JedisPoolConfig(), host, port);
     }
 
-    public final JedisPool getPool() {
+    public Connection(final String master, final Set<String> sentinels) {
+        this.pool = new JedisSentinelPool(master, sentinels, new JedisPoolConfig());
+    }
+
+    public final Pool<Jedis> getPool() {
         return this.pool;
     }
 

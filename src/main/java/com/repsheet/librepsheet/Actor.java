@@ -3,6 +3,7 @@ package com.repsheet.librepsheet;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.util.Pool;
 
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public final class Actor {
         }
     }
 
-    public static Actor query(final JedisPool connection, final Type type, final String value, final Status status)
+    public static Actor query(final Pool<Jedis> connection, final Type type, final String value, final Status status)
     throws RepsheetConnectionException {
         String keyspace = Util.keyspaceFromStatus(status);
 
