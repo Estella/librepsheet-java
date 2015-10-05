@@ -73,14 +73,9 @@ cleanup:
 	- rm dump.rdb appendonly.aof - 2>/dev/null
 
 stop:
-	kill `cat /tmp/redis1.pid`
-	kill `cat /tmp/redis3.pid`
-	kill `cat /tmp/sentinel1.pid`
-	kill `cat /tmp/sentinel2.pid`
-	kill `cat /tmp/sentinel3.pid`
-	rm -f /tmp/sentinel1.conf
-	rm -f /tmp/sentinel2.conf
-	rm -f /tmp/sentinel3.conf
+	for file in `ls -d /tmp/redis*.pid`; do kill `cat $$file`; done
+	for file in `ls -d /tmp/sentinel*.pid`; do kill `cat $$file`; done
+	for file in `ls -d /tmp/sentinel*.conf`; do rm -f $$file; done
 
 test:
 	make start

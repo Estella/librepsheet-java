@@ -5,3 +5,6 @@ jdk:
   - oraclejdk8
 install: make travis-install
 script: make test
+cache:
+  directories:
+    - $HOME/.m2
