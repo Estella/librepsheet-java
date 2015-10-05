@@ -5,7 +5,7 @@ import org.junit.Test;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class BadConnectionTest {
-    private Connection badConnection;
+    protected Connection badConnection;
 
     @Before
     public void setUp() {

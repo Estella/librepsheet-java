@@ -9,7 +9,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 public class ConnectionTest {
-    private Connection connection;
+    protected Connection connection;
     
     @Before
     public void setUp() {
@@ -21,7 +21,6 @@ public class ConnectionTest {
 
     @Test
     public void testConnectionReturnsUsableConnectionPool() {
-        Connection connection = new Connection("localhost");
         try (Jedis jedis = connection.getPool().getResource()) {
             String response = jedis.ping();
             assertEquals("PONG", response);

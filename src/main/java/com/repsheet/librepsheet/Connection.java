@@ -5,6 +5,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.util.Pool;
 
 import java.util.Set;
@@ -24,8 +25,12 @@ public class Connection {
         this.pool = new JedisPool(new JedisPoolConfig(), host, port);
     }
 
-    public Connection(final String master, final Set<String> sentinels) {
-        this.pool = new JedisSentinelPool(master, sentinels, new JedisPoolConfig());
+    public Connection(final String master, final Set<String> sentinels) throws RepsheetConnectionException {
+        try {
+            this.pool = new JedisSentinelPool(master, sentinels, new JedisPoolConfig());
+        } catch (JedisException e) {
+            throw new RepsheetConnectionException(e);
+        }
     }
 
     public final Pool<Jedis> getPool() {
