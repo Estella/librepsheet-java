@@ -21,8 +21,10 @@ The common use case is inside of a filter/handler/interceptor/etc. inside of a J
 
 librepsheet provides a `Connection` class. This is simply a wrapper over the [Jedis](https://github.com/xetorthio/jedis)
 connection pool. This is used because the standard Jedis connection isn't thread safe. Using the provided `Connection`
-class will dael with this for you so you don't have to think about how the cache is working underneath. To get a
+class will deal with this for you so you don't have to think about how the cache is working underneath. To get a
 connection simply use the following:
+
+#Connect to Single Redis Host
 
 ```java
 import org.repsheet.librepsheet.Connection;
@@ -36,6 +38,24 @@ public void someFunc() {
 
 The three arguments to the constructor are the Redis host, port, and connection timeout in milliseconds. This will
 create the connection pool for you to pass along to the `Actor` class when querying the cache.
+
+#Connect to Redis Sentinel Hosts
+
+```java
+import org.repsheet.librepsheet.Connection;
+
+...
+
+public void someFunc() {
+    Set<String> sentinels = new HashSet<>;
+    sentinels.add("localhost:26379");
+    sentinels.add("localhost:26380");
+
+    Connection connection = Connection.new("mymaster", sentinels);
+}
+```
+
+The two arguments to the constructor are the Redis Sentinel master name, and a set of "host:port" strings.
 
 #### Actors
 
