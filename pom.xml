@@ -104,6 +104,35 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!--Start and stop redis before and after test-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <id>Start Redis</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>src/test/resources/start_redis.sh</executable>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Stop Redis</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>src/test/resources/stop_redis.sh</executable>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
