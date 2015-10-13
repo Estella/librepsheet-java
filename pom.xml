@@ -30,7 +30,7 @@
 
     <groupId>com.aaronbedra</groupId>
     <artifactId>librepsheet</artifactId>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.2</version>
 
     <build>
         <plugins>
