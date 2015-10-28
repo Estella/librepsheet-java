@@ -205,7 +205,7 @@ public class ConnectionTest {
         Set<String> keys = connection.lookupByStatus(Actor.Status.BLACKLISTED);
 
         Assert.assertTrue(keys.contains("1.2.3.4:repsheet:ip:blacklisted"));
-        Assert.assertTrue(keys.contains("bob:repsheet:users:blacklisted"));
+        Assert.assertTrue(keys.contains("bob:repsheet:user:blacklisted"));
     }
 
     @Test

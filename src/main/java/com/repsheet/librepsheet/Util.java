@@ -22,7 +22,7 @@ public final class Util {
             case IP:
                 return "ip";
             case USER:
-                return "users";
+                return "user";
             case CIDR:
                 return "cidr";
             default:
