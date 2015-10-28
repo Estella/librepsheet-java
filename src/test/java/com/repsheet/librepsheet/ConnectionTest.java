@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 public class ConnectionTest {
     protected Connection connection;
