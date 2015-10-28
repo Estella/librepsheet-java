@@ -32,7 +32,7 @@ import org.repsheet.librepsheet.Connection;
 ...
 
 public void someFunc() {
-  Connection connection = Connection.new("localhost", 6379, 5);
+  Connection connection = new Connection("localhost", 6379, 5);
 }
 ```
 
