@@ -76,7 +76,7 @@ public final class Actor {
                 break;
             case USER:
                 try (Jedis jedis = connection.getResource()) {
-                    String reply = jedis.get(value + ":repsheet:users:" + keyspace);
+                    String reply = jedis.get(value + ":repsheet:user:" + keyspace);
                     if (reply != null) {
                         return new Actor(type, value, status, reply);
                     }

@@ -8,6 +8,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.util.Pool;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class Connection {
@@ -56,6 +57,18 @@ public class Connection {
         }
 
         return new Actor(type, value, Actor.Status.OK, null);
+    }
+
+    public final Set<String> lookupByStatus(final Actor.Status status) {
+        String keyspace = Util.keyspaceFromStatus(status);
+        if (keyspace == null) return Collections.emptySet();
+
+        try (Jedis jedis = pool.getResource()) {
+            String queryPattern = String.format("*:%s", keyspace);
+            return jedis.keys(queryPattern);
+        } catch (JedisConnectionException e) {
+            throw new RepsheetConnectionException(e);
+        }
     }
 
     public final Status blacklist(final String actor, final Actor.Type type, final String reason)

@@ -2,15 +2,12 @@ package com.repsheet.librepsheet;
 
 import com.aaronbedra.orchard.CIDR;
 import com.aaronbedra.orchard.OrchardException;
-import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.RecursiveTask;
 
 public class BulkCIDRProcessor extends RecursiveTask<List<String>> {
-    private static final int KEYSPACELENGTH = 3;
     private Set<String> blocks;
     private String block;
     private final String actor;
@@ -38,8 +35,7 @@ public class BulkCIDRProcessor extends RecursiveTask<List<String>> {
             }
         } else {
             try {
-                String[] parts = block.split(":");
-                String cidr = StringUtils.join(Arrays.asList(parts).subList(0, parts.length - KEYSPACELENGTH), ":");
+                String cidr = CIDRUtils.fetchCidr(block);
                 if (CIDR.valueOf(cidr).contains(actor)) {
                     results.add(cidr);
                 }
