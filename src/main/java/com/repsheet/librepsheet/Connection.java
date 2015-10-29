@@ -61,7 +61,9 @@ public class Connection {
 
     public final Set<String> lookupByStatus(final Actor.Status status) {
         String keyspace = Util.keyspaceFromStatus(status);
-        if (keyspace == null) return Collections.emptySet();
+        if (keyspace == null) {
+            return Collections.emptySet();
+        }
 
         try (Jedis jedis = pool.getResource()) {
             String queryPattern = String.format("*:%s", keyspace);
