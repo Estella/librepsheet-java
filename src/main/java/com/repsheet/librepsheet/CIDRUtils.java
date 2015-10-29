@@ -6,15 +6,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 
-/**
- * Utility class for working with Repsheet CIRD blocks.
- *
- * @author saserpoosh
- * @since 10/28/15
- */
 public class CIDRUtils {
 
-    private static final int KEYSPACELENGTH     = 3;
+    private static final int KEYSPACELENGTH = 3;
     private static final String BLOCK_SEPARATOR = ":";
 
     public static String fetchCidr(String cidrBlock) {
