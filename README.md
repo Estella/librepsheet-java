@@ -11,7 +11,7 @@ The common use case is inside of a filter/handler/interceptor/etc. inside of a J
 <dependency>
     <groupId>com.aaronbedra</groupId>
     <artifactId>librepsheet</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
